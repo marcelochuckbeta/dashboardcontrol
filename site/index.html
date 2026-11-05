@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DashBoard_Control_</title>
+<meta name="description" content="Painel de prazos e entregas com edição e atualização ao vivo.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DashBoard_Control_">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="page" id="page">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand-name">CHUCK</span>
+        <canvas id="wave" aria-hidden="true"></canvas>
+      </div>
+      <header class="head">
+        <h1>Status dos projetos</h1>
+        <p class="sub">Hoje, <b id="today">—</b></p>
+      </header>
+      <div class="tools">
+        <span class="sync" id="sync" data-state="idle" role="status">Conectando</span>
+        <button type="button" class="btn layout-tool" id="layout-reset" hidden>Restaurar padrão</button>
+        <button type="button" class="btn layout-tool" id="layout-edit" aria-pressed="false">Editar layout</button>
+        <button type="button" class="btn cal-open" aria-expanded="false" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg>Calendário</button>
+      </div>
+    </div>
+
+    <div class="board" id="board">
+        <section class="card panel" data-panel="prazo" data-title="Próximo prazo">
+          <h2 class="card-title">Próximo prazo</h2>
+          <p class="big"><b id="days">—</b> <span class="unit" id="days-unit">dias restantes</span></p>
+          <p class="date-row"><b id="next-date">Sem prazos em aberto</b>
+            <button type="button" class="icon cal-open" aria-expanded="false" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></button>
+          </p>
+        </section>
+        <section class="card panel" data-panel="dias" data-title="Dias por projeto">
+          <h2 class="card-title">Dias por projeto</h2>
+          <ul class="bars" id="bars"></ul>
+        </section>
+        <section class="card panel" data-panel="abertas" data-title="Entregas em aberto">
+          <h2 class="card-title">Entregas em aberto</h2>
+          <div class="open">
+            <p class="open-num"><b id="open">0</b> <span class="open-of">de <span id="total">0</span></span></p>
+            <div class="donut" id="donut"></div>
+          </div>
+        </section>
+
+      <section class="panel radar-box" data-panel="radar" data-title="Radar de prazos" aria-label="Radar de prazos">
+        <div class="radar" id="radar"></div>
+        <div class="radar-foot">
+          <p>O centro é hoje e cada anel marca os dias até a entrega. Arraste um ponto para mudar o prazo.</p>
+          <span class="stepper">Zona crítica
+            <span class="stepper-row">
+              <button type="button" class="icon" id="lim-down" aria-label="Diminuir zona crítica">−</button>
+              <b id="limit-label">—</b>
+              <button type="button" class="icon" id="lim-up" aria-label="Aumentar zona crítica">+</button>
+            </span>
+          </span>
+        </div>
+      </section>
+
+      <section class="card panel notes-card" data-panel="alerta" data-title="Observações">
+        <div class="notes-head">
+          <h2 class="card-title">Observações</h2>
+          <span class="notes-count" id="notes-count"></span>
+        </div>
+        <select class="cell note-project" id="note-project" aria-label="Projeto da nova anotação"></select>
+        <div class="notes-add">
+          <input type="text" class="cell note-new" id="note-new" maxlength="500" placeholder="Escreva uma anotação" aria-label="Nova anotação">
+          <button type="button" class="icon" id="note-add" aria-label="Adicionar anotação"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+        </div>
+        <ul class="notes" id="notes"></ul>
+        <p class="calm notes-empty" id="notes-empty">Nenhuma anotação ainda. Escreva acima e pressione Enter.</p>
+      </section>
+      <section class="card panel" data-panel="concluir" data-title="Marcar como concluída">
+        <h2 class="card-title">Marcar como concluída</h2>
+        <ul class="checks" id="checks"></ul>
+      </section>
+
+      <section class="card panel walker-card" data-panel="ascii" data-title="Animação em texto">
+        <canvas id="walker" role="img" aria-label="Figura feita de caracteres caminhando, mais rápida conforme o mouse se move"></canvas>
+        <p class="walker-km" aria-label="Pomodoro: contagem regressiva de 15 minutos"><b id="pomo-time">15:00</b><span class="walker-line"></span><span>pomodoro <b id="pomo-count">0</b></span></p>
+      </section>
+
+      <section class="card panel time" data-panel="time" data-title="Linha do tempo">
+        <div class="time-head">
+          <h2 class="card-title">Linha do tempo de prazos</h2>
+          <p class="hint">Arraste o ponto para mudar o prazo.</p>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </section>
+
+      <section class="card panel table-card" data-panel="table" data-title="Entregas por projeto">
+        <div class="table-head">
+          <h2 class="card-title">Entregas por projeto</h2>
+          <button type="button" class="btn" id="add"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Nova entrega</button>
+        </div>
+        <p class="hint">Clique em qualquer campo para editar. As alterações são salvas e aparecem para todos na hora.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Projeto</th><th>Campanha</th><th>Fase</th><th>Entrega</th><th>Status</th>
+                <th><span class="th-row">Prazo <button type="button" class="icon cal-open" aria-expanded="false" aria-label="Abrir calendário"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg></button></span></th>
+                <th class="num">Dias</th><th><span class="sr" hidden>Excluir</span></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <p class="empty" id="empty">Carregando entregas…</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="cal" id="cal" role="dialog" aria-label="Calendário" hidden>
+    <div class="cal-head">
+      <button type="button" class="icon" id="cal-prev" aria-label="Mês anterior">‹</button>
+      <span class="cal-month" id="cal-month"></span>
+      <button type="button" class="icon" id="cal-next" aria-label="Próximo mês">›</button>
+    </div>
+    <p class="cal-hint" id="cal-hint" hidden></p>
+    <div class="cal-week" aria-hidden="true"><span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span></div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-foot">
+      <span class="key"><span class="swatch today"></span>Hoje</span>
+      <span class="key"><span class="swatch due"></span>Prazo</span>
+      <button type="button" class="cal-go" id="cal-go">Ir para hoje</button>
+    </div>
+    <ul class="cal-list" id="cal-list"></ul>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" id="toast-action" hidden>Desfazer</button></div>
+</div>
+
+<div class="auth" id="auth" hidden>
+  <form class="auth-card" id="auth-form" novalidate>
+    <p class="auth-brand">CHUCK</p>
+    <h1 class="auth-title" id="auth-title">Entre para ver os projetos</h1>
+    <div id="auth-fields">
+      <label for="auth-email">E-mail</label>
+      <input id="auth-email" type="email" autocomplete="username" required>
+      <label for="auth-password">Senha</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required>
+      <button type="submit" id="auth-submit">Entrar</button>
+    </div>
+    <p class="auth-msg" id="auth-msg" role="alert"></p>
+  </form>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/supabase-adapter.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Dados reais de projetos não devem entrar no repositório.
+supabase/2-dados-atuais.sql
+supabase/*dados*.sql
+*.zip
+*.tar.gz
+.DS_Store
+Thumbs.db
