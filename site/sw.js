@@ -1,6 +1,6 @@
 // Guarda os arquivos do app para abrir rápido. Os dados sempre vêm do Supabase.
 // Ao publicar uma nova versão, aumente o número abaixo.
-const CACHE = 'dashboard-control-v1';
+const CACHE = 'dashboard-control-v2';
 const FILES = [
   './',
   './index.html',
