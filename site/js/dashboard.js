@@ -112,15 +112,6 @@
   };
   const patch = (id, fields, wait) => {
     if (!state.canWrite || !state.db) return;
-    // Última entrega do projeto concluída: o projeto vai para o histórico (só na versão online).
-    if (window.appSupabase && fields.status === DONE) {
-      const current = view().find((r) => r.id === id);
-      if (current && current.status !== DONE
-        && view().every((r) => r.id === id || label(r) !== label(current) || r.status === DONE)) {
-        const previous = current.status;
-        setTimeout(() => toast(`${label(current)} concluído e movido para o histórico.`, () => patch(id, {status: previous}, 0)), 0);
-      }
-    }
     pending.set(id, {...(pending.get(id) || {}), ...fields});
     clearTimeout(timers.get(id));
     timers.set(id, setTimeout(() => flush(id), wait));
