@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Histórico · DashBoard_Control_</title>
+<meta name="description" content="Projetos concluídos, com entregas e anotações.">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DashBoard_Control_">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="page page-scroll" id="page">
+  <div class="wrap hist-wrap">
+    <div class="topbar">
+      <div class="brand"><span class="brand-name">CHUCK</span></div>
+      <header class="head">
+        <h1>Histórico</h1>
+        <p class="sub">Projetos concluídos, com entregas e anotações</p>
+      </header>
+      <div class="tools">
+        <a class="btn" href="./">Voltar ao painel</a>
+      </div>
+    </div>
+
+    <form class="card hist-filters" id="filters" role="search">
+      <label class="hist-search">
+        <span class="visually-hidden">Buscar no histórico</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input type="search" id="q" placeholder="Buscar projeto, entrega ou nota" autocomplete="off" enterkeyhint="search">
+      </label>
+      <label class="hist-period">
+        <span class="visually-hidden">Período</span>
+        <select id="period">
+          <option value="">Todo o período</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="365">Últimos 12 meses</option>
+        </select>
+      </label>
+      <p class="hist-count" id="count" role="status">Carregando</p>
+    </form>
+
+    <div class="hist-list" id="list"></div>
+    <p class="hist-empty" id="empty" hidden></p>
+    <div class="hist-more"><button type="button" class="btn" id="more" hidden>Carregar mais</button></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" id="toast-action" hidden>Desfazer</button></div>
+</div>
+
+<div class="auth" id="auth" hidden>
+  <form class="auth-card" id="auth-form" novalidate>
+    <p class="auth-brand">CHUCK</p>
+    <h1 class="auth-title" id="auth-title">Entre para ver os projetos</h1>
+    <div id="auth-fields">
+      <label for="auth-email">E-mail</label>
+      <input id="auth-email" type="email" autocomplete="username" required>
+      <label for="auth-password">Senha</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required>
+      <button type="submit" id="auth-submit">Entrar</button>
+    </div>
+    <p class="auth-msg" id="auth-msg" role="alert"></p>
+  </form>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/dist/umd/supabase.js"></script>
+<script src="js/supabase-adapter.js"></script>
+<script src="js/historico.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+</script>
+</body>
+</html>
