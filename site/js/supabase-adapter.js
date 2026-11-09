@@ -36,7 +36,7 @@
     const reverse = Object.fromEntries(Object.entries(spec.fields).map(([a, b]) => [b, a]));
     const data = {};
     Object.entries(row).forEach(([k, v]) => {
-      if (k !== 'id' && k !== 'atualizado_em') data[reverse[k] || k] = v;
+      if (k !== 'id' && k !== 'atualizado_em' && k !== 'arquivado_em') data[reverse[k] || k] = v;
     });
     return data;
   };
@@ -62,7 +62,10 @@
       store.listeners.forEach((fn) => fn(snap));
     };
     store.reload = async () => {
-      const {data, error} = await client.from(spec.table).select('*');
+      // Projetos concluídos ficam no histórico, fora do painel.
+      let {data, error} = await client.from(spec.table).select('*').is('arquivado_em', null);
+      // Banco ainda sem o 3-historico.sql: mostra tudo, como antes.
+      if (error && error.code === '42703') ({data, error} = await client.from(spec.table).select('*'));
       if (error) throw failure(error);
       store.rows = new Map(data.map((row) => [String(row.id), fromRow(spec, row)]));
       store.emit();
@@ -100,10 +103,15 @@
             } catch (e) { store.scheduleReload(); throw e; }
           },
           update: async (data) => {
-            store.rows.set(id, {...(store.rows.get(id) || {}), ...data});
-            store.emit();
+            // Uma linha que está no histórico só volta ao painel quando o banco a devolve.
+            const known = store.rows.has(id);
+            if (known) {
+              store.rows.set(id, {...store.rows.get(id), ...data});
+              store.emit();
+            }
             try {
               check(await client.from(spec.table).update(toRow(spec, data)).eq('id', id));
+              if (!known) store.scheduleReload();
             } catch (e) { store.scheduleReload(); throw e; }
           },
           delete: async () => {
@@ -164,6 +172,9 @@
   // Login
   let resolveSession;
   const sessionReady = new Promise((resolve) => { resolveSession = resolve; });
+  // Usados pela página de histórico.
+  window.appSupabase = client;
+  window.appSession = sessionReady;
   const enter = (session) => {
     $('auth').hidden = true;
     addSignOut();
